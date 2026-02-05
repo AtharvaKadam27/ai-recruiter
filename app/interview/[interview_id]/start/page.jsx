@@ -17,6 +17,7 @@ function StartInterview() {
 
   const [activeUser, setActiveUser] = useState(false);
   const [conversation, setConversation] = useState();
+  const conversationRef = useRef(); // Add ref to store conversation for immediate access
   const vapi = useRef();
   const [hasInterviewStarted, setHasInterviewStarted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -64,6 +65,7 @@ function StartInterview() {
         const convoString = JSON.stringify(message.conversation);
         console.log("Conversation String:", convoString);
         setConversation(convoString);
+        conversationRef.current = convoString; // Store in ref for immediate access
       }
     };
 
@@ -79,8 +81,20 @@ function StartInterview() {
 
   const GenerateFeedback = async () => {
     try {
+      // Use ref value which has the latest conversation data
+      const currentConversation = conversationRef.current;
+
+      if (!currentConversation) {
+        console.error("No conversation data available");
+        toast.error("No interview conversation recorded. Please try again.");
+        router.replace("/interview/" + interview_id + "/completed");
+        return;
+      }
+
+      console.log("Sending conversation for feedback:", currentConversation);
+
       const result = await axios.post("/api/ai-feedback", {
-        conversation: conversation,
+        conversation: currentConversation,
       });
 
       console.log(result);
@@ -92,6 +106,7 @@ function StartInterview() {
       if (!Content) {
         console.error("No content found in the API response.");
         toast.error("Failed to generate feedback - no response from AI");
+        router.replace("/interview/" + interview_id + "/completed");
         return;
       }
 

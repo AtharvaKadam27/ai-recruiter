@@ -12,9 +12,10 @@ import { InterviewDataContext } from "@/context/InterviewDataContext";
 function Interview() {
   const { interview_id } = useParams();
   const [interviewData, setInterviewData] = useState();
-  const [userName, setUserName] = useState();
-  const [loading, setLoading] = useState(false);
-  const [userEmail, setUserEmail] = useState();
+  const [userName, setUserName] = useState("");
+  const [pageLoading, setPageLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   const { interviewInfo, setInterviewInfo } = useContext(InterviewDataContext);
   const router = useRouter();
@@ -23,37 +24,67 @@ function Interview() {
   }, [interview_id]);
 
   const GetInterviewDetail = async () => {
-    setLoading(true);
+    setPageLoading(true);
     try {
       let { data: Interviews, error } = await supabase
         .from("Interviews")
         .select("jobPosition,jobDescription,duration,type")
         .eq("interview_id", interview_id);
-      setInterviewData(Interviews[0]);
-      console.log(Interviews[0]);
-      if (Interviews?.length === 0) {
-        toast("Incorrect Interview Link");
+
+      console.log("Interview data:", Interviews, "Error:", error);
+
+      if (error) {
+        console.error("Error fetching interview:", error);
+        toast.error("Error loading interview");
+        setPageLoading(false);
         return;
       }
-      setLoading(false);
+
+      if (!Interviews || Interviews?.length === 0) {
+        toast.error("Incorrect Interview Link");
+        setPageLoading(false);
+        return;
+      }
+
+      setInterviewData(Interviews[0]);
+      setPageLoading(false);
     } catch (error) {
-      toast("Incorrect Interview Link", error);
+      console.error("Catch error:", error);
+      toast.error("Error loading interview");
+      setPageLoading(false);
     }
   };
 
   const onJoinInterview = async () => {
-    setLoading(true);
-    let { data: Interviews, error } = await supabase
-      .from("Interviews")
-      .select("*")
-      .eq("interview_id", interview_id);
-    setInterviewInfo({
-      userName: userName,
-      userEmail: userEmail,
-      interviewData: Interviews[0],
-    });
-    router.push("/interview/" + interview_id + "/start");
-    setLoading(false);
+    if (!userName.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+
+    setButtonLoading(true);
+    try {
+      let { data: Interviews, error } = await supabase
+        .from("Interviews")
+        .select("*")
+        .eq("interview_id", interview_id);
+
+      if (error || !Interviews || Interviews.length === 0) {
+        toast.error("Failed to load interview data");
+        setButtonLoading(false);
+        return;
+      }
+
+      setInterviewInfo({
+        userName: userName,
+        userEmail: userEmail,
+        interviewData: Interviews[0],
+      });
+      router.push("/interview/" + interview_id + "/start");
+    } catch (error) {
+      console.error("Error joining interview:", error);
+      toast.error("Failed to join interview");
+      setButtonLoading(false);
+    }
   };
 
   return (
@@ -137,11 +168,15 @@ function Interview() {
           </ul>
         </div>
         <Button
-          className={"mt-5 w-full font-bold flex items-center"}
-          disabled={loading || !userName}
+          className={
+            "mt-5 w-full font-bold flex items-center justify-center gap-2"
+          }
+          disabled={buttonLoading || !userName.trim()}
           onClick={() => onJoinInterview()}
         >
-          <Video /> {loading && <Loader2Icon />} Join Interview
+          <Video className="w-5 h-5" />
+          {buttonLoading && <Loader2Icon className="animate-spin w-5 h-5" />}
+          Join Interview
         </Button>
       </div>
     </div>

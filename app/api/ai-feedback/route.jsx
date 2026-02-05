@@ -3,34 +3,52 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 export async function POST(req) {
-  const { conversation } = await req.json();
-  const FINAL_PROMPT = FEEDBACK_PROMPT.replace(
-    "{{conversation}}",
-    JSON.stringify(conversation),
-  );
-
   try {
+    const { conversation } = await req.json();
+
+    if (!conversation || conversation.length === 0) {
+      return NextResponse.json(
+        { error: "No conversation data provided" },
+        { status: 400 },
+      );
+    }
+
+    const FINAL_PROMPT = FEEDBACK_PROMPT.replace(
+      "{{conversation}}",
+      JSON.stringify(conversation),
+    );
+
+    console.log("Generating feedback for conversation...");
+
     const openai = new OpenAI({
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: process.env.OPENROUTER_API_KEY,
     });
+
     const completion = await openai.chat.completions.create({
-      model: "deepseek/deepseek-r1-0528:free",
+      model: "meta-llama/llama-3.3-8b-instruct:free",
       messages: [{ role: "user", content: FINAL_PROMPT }],
     });
 
-    // Log the full completion response for debugging
-    console.log("API Response:", completion);
+    console.log("API Response received");
 
-    // Check if choices exist and are not empty
     if (completion.choices && completion.choices.length > 0) {
-      return NextResponse.json(completion.choices[0].message.content);
+      let content = completion.choices[0].message.content;
+
+      // Remove <think> tags if present (DeepSeek sometimes includes these)
+      if (content.includes("<think>")) {
+        content = content.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+      }
+
+      return NextResponse.json(content);
     } else {
-      // Handle the case where choices is empty or not present
-      return NextResponse.json({ error: "No response from OpenAI model." });
+      return NextResponse.json(
+        { error: "No response from AI model." },
+        { status: 500 },
+      );
     }
   } catch (e) {
-    console.log("Error", e);
+    console.error("Feedback API Error:", e);
     return NextResponse.json(
       { error: e.message || "Failed to generate feedback" },
       { status: 500 },

@@ -67,17 +67,32 @@ export default function LandingPage() {
           <a href="#whatsnew" className="hover:text-blue-600">
             What's New
           </a>
-          <a href="#pricing" className="hover:text-blue-600">
-            Pricing
-          </a>
         </nav>
-        <div className="flex gap-2">
-          <Button
-            className="bg-green-400 text-white hover:bg-green-700 cursor-pointer"
-            onClick={handleSignInClick}
-          >
-            {hasSession ? "Go to Dashboard" : "Sign In"}
-          </Button>
+        <div className="flex gap-3">
+          {!hasSession ? (
+            <>
+              <Button
+                variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50 cursor-pointer"
+                onClick={() => router.push("/auth")}
+              >
+                Login
+              </Button>
+              <Button
+                className="bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                onClick={() => router.push("/auth")}
+              >
+                Sign Up
+              </Button>
+            </>
+          ) : (
+            <Button
+              className="bg-green-500 text-white hover:bg-green-600 cursor-pointer"
+              onClick={() => router.push("/dashboard")}
+            >
+              Go to Dashboard
+            </Button>
+          )}
         </div>
       </header>
 
@@ -177,56 +192,6 @@ export default function LandingPage() {
               Recommend candidates by analyzing their interview performance
               using AI-driven insights.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="bg-white py-16 px-6 md:px-20">
-        <h2 className="text-3xl font-bold text-center text-blue-600 mb-10">
-          Pricing Plans
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="p-6 border rounded-lg shadow hover:shadow-md transition">
-            <h3 className="text-xl font-semibold mb-2">Free</h3>
-            <p className="text-gray-600 mb-4">Ideal for beginners</p>
-            <ul className="text-gray-600 space-y-2 mb-4">
-              <li>✔️ 5 mock interviews/month</li>
-              <li>✔️ Basic feedback</li>
-              <li>❌ No real-time support</li>
-            </ul>
-            <Button className="bg-blue-600 text-white w-full hover:bg-blue-700 cursor-pointer">
-              Get Started
-            </Button>
-          </div>
-          <div className="p-6 border-2 border-blue-600 rounded-lg shadow-lg bg-blue-50">
-            <div className="flex flex-row justify-between">
-              <h3 className="text-xl font-semibold mb-2">Pro</h3>
-              <h3 className="text-[14px] font-semibold mb-2 text-white bg-blue-800 p-2 rounded-md">
-                Recommonded
-              </h3>
-            </div>
-            <p className="text-gray-600 mb-4">Best for job seekers</p>
-            <ul className="text-gray-600 space-y-2 mb-4">
-              <li>✔️ Unlimited interviews</li>
-              <li>✔️ AI voice assistant</li>
-              <li>✔️ Analytics & feedback</li>
-            </ul>
-            <Button className="bg-blue-600 text-white w-full hover:bg-blue-700 cursor-pointer">
-              Upgrade Now
-            </Button>
-          </div>
-          <div className="p-6 border rounded-lg shadow hover:shadow-md transition">
-            <h3 className="text-xl font-semibold mb-2">Enterprise</h3>
-            <p className="text-gray-600 mb-4">For HR teams</p>
-            <ul className="text-gray-600 space-y-2 mb-4">
-              <li>✔️ Team dashboard</li>
-              <li>✔️ API access</li>
-              <li>✔️ Dedicated support</li>
-            </ul>
-            <Button className="bg-blue-600 text-white w-full hover:bg-blue-700 cursor-pointer">
-              Contact Sales
-            </Button>
           </div>
         </div>
       </section>

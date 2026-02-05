@@ -1,22 +1,26 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Clock, Copy, List, Mail, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 function InterviewLink({ interview_id, formData }) {
-  const GetInterviewUrl = () => {
-    const url = `${process.env.NEXT_PUBLIC_HOST_URL}/interview/${interview_id}`;
-    return url;
+  const [interviewUrl, setInterviewUrl] = useState("");
+
+  useEffect(() => {
+    // Set URL only on client side to avoid hydration mismatch
+    const url = `${window.location.origin}/interview/${interview_id}`;
+    setInterviewUrl(url);
+  }, [interview_id]);
+
+  const onCopyLink = async () => {
+    await navigator.clipboard.writeText(interviewUrl);
+    toast.success("Link Copied!");
   };
 
-  const url = GetInterviewUrl();
-  const onCopyLink = async () => {
-    await navigator.clipboard.writeText(url);
-    toast("Link Copied");
-  };
   return (
     <div className="flex flex-col items-center justify-center mt-10">
       <Image
@@ -38,8 +42,8 @@ function InterviewLink({ interview_id, formData }) {
           </h2>
         </div>
         <div className="mt-2 flex gap-4 items-center">
-          <Input defaultValue={GetInterviewUrl()} disabled={false} />
-          <Button onClick={() => onCopyLink()} className={"cursor-pointer"}>
+          <Input value={interviewUrl} readOnly />
+          <Button onClick={onCopyLink} className={"cursor-pointer"}>
             <Copy />
             Copy Link
           </Button>
@@ -47,31 +51,27 @@ function InterviewLink({ interview_id, formData }) {
         <hr className="my-5" />
         <div className="flex gap-5">
           <h2 className="text-sm text-gray-500 flex gap-2 items-center">
-            <Clock className="h-4 w-4" /> 30min
-            {formData?.duration}
+            <Clock className="h-4 w-4" />
+            {formData?.duration || "30 min"}
           </h2>
           <h2 className="text-sm text-gray-500 flex gap-2 items-center">
             <List className="h-4 w-4" />
-            10 Questions
+            {formData?.questionList?.length || 10} Questions
           </h2>
-          {/* <h2 className="text-sm text-gray-500 flex gap-2 items-center">
-            <Cal className="h-4 w-4" /> 30min
-            {formData?.duration}
-          </h2> */}
         </div>
       </div>
       <div className="mt-7 bg-white p-5 rounded-lg w-full">
         <h2 className="font-bold">Share Via</h2>
         <div className="gap-7 flex">
-          <Button variant={"outline"} className={""}>
+          <Button variant={"outline"}>
             <Mail />
             Email
           </Button>
-          <Button variant={"outline"} className={""}>
+          <Button variant={"outline"}>
             <Mail />
             Slack
           </Button>
-          <Button variant={"outline"} className={""}>
+          <Button variant={"outline"}>
             <Mail />
             Whatsapp
           </Button>
@@ -84,10 +84,10 @@ function InterviewLink({ interview_id, formData }) {
             Back to Dashboard
           </Button>
         </Link>
-        <Link href={"/create-interview"}>
+        <Link href={"/dashboard/create-interview"}>
           <Button>
             <Plus />
-            Cretae New Interview
+            Create New Interview
           </Button>
         </Link>
       </div>

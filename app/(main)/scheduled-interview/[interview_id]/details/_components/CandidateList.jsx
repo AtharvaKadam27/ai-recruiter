@@ -1,23 +1,26 @@
 import { Button } from "@/components/ui/button";
 import moment from "moment/moment";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CandidateFeedbackDialog from "./CandidateFeedbackDialog";
 
 function CandidateList({ candidate }) {
-  let total = null;
-  if (!candidate || !candidate[0]) {
-    return <div>Loading...</div>;
-  }
+  const [total, setTotal] = useState(null);
+
   useEffect(() => {
     if (candidate?.[0]?.feedback?.feedback) {
       const feedback = candidate[0].feedback.feedback;
-      total =
-        (feedback.rating.technicalSkills || 0) +
-        (feedback.rating.communication || 0) +
-        (feedback.rating.problemSolving || 0) +
-        (feedback.rating.experience || 0);
+      const calculatedTotal =
+        (feedback.rating?.technicalSkills || 0) +
+        (feedback.rating?.communication || 0) +
+        (feedback.rating?.problemSolving || 0) +
+        (feedback.rating?.experience || 0);
+      setTotal(calculatedTotal);
     }
   }, [candidate]);
+
+  if (!candidate || !candidate[0]) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>

@@ -26,10 +26,6 @@ function CreateInterview() {
   };
 
   const onGoToNext = () => {
-    if (user?.credits <= 0) {
-      toast("Please add credits!");
-      return;
-    }
     if (
       !formData?.jobPosition ||
       !formData?.jobDescription ||

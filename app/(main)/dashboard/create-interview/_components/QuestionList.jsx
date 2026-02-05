@@ -93,30 +93,50 @@ function QuestionList({ formData, onCreateLink }) {
   };
   const onFinish = async () => {
     setSaveLoading(true);
-    const interview_id = uuidv4();
-    const { data, error } = await supabase
-      .from("Interviews")
-      .insert([
-        {
-          ...formData,
-          questionList: questionList,
-          userEmail: user?.email,
-          interview_id: interview_id,
-        },
-      ])
-      .select();
+    try {
+      const interview_id = uuidv4();
 
-    //Update User Credits
-    const userUpdate = await supabase
-      .from("Users")
-      .update({ credits: Number(user?.credits) - 1 })
-      .eq("email", user?.email)
-      .select();
+      console.log("Creating interview with ID:", interview_id);
+      console.log("Form data:", formData);
+      console.log("User email:", user?.email);
 
-    console.log(userUpdate);
+      const insertData = {
+        jobPosition: formData?.jobPosition || "",
+        jobDescription: formData?.jobDescription || "",
+        duration: formData?.duration || "",
+        type: Array.isArray(formData?.type)
+          ? formData.type.join(", ")
+          : formData?.type || "",
+        questionList: questionList,
+        userEmail: user?.email || "",
+        interview_id: interview_id,
+      };
 
-    setSaveLoading(false);
-    onCreateLink(interview_id);
+      console.log("Insert data:", insertData);
+
+      const { data, error } = await supabase
+        .from("Interviews")
+        .insert(insertData)
+        .select();
+
+      console.log("Supabase response - data:", data, "error:", error);
+
+      if (error) {
+        console.error("Supabase error:", error);
+        toast.error("Failed: " + error.message);
+        setSaveLoading(false);
+        return;
+      }
+
+      console.log("Interview created successfully!");
+      toast.success("Interview created successfully!");
+      setSaveLoading(false);
+      onCreateLink(interview_id);
+    } catch (error) {
+      console.error("Catch error:", error);
+      toast.error("Error: " + (error?.message || "Unknown error"));
+      setSaveLoading(false);
+    }
   };
   return (
     <div>

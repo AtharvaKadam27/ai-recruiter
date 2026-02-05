@@ -14,11 +14,21 @@ import Link from "next/link";
 
 function CandidateFeedbackDialog({ candidate }) {
   const feedback = candidate?.feedback?.feedback;
-  const total =
-    feedback?.rating?.technicalSkills +
-    feedback?.rating?.communication +
-    feedback?.rating?.problemSolving +
-    feedback?.rating?.experience;
+
+  // Helper function to ensure score is between 0-10
+  const normalizeScore = (score) => {
+    if (typeof score !== "number" || isNaN(score)) return 0;
+    return Math.min(10, Math.max(0, score));
+  };
+
+  const technicalSkills = normalizeScore(feedback?.rating?.technicalSkills);
+  const communication = normalizeScore(feedback?.rating?.communication);
+  const problemSolving = normalizeScore(feedback?.rating?.problemSolving);
+  const experience = normalizeScore(feedback?.rating?.experience);
+
+  const total = technicalSkills + communication + problemSolving + experience;
+  const average = (total / 4).toFixed(1);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -45,7 +55,7 @@ function CandidateFeedbackDialog({ candidate }) {
                 </div>
                 <div className="flex gap-2 items-center">
                   <h2 className="text-primary text-2xl font-bold">
-                    {total / 4}/10
+                    {average}/10
                   </h2>
                 </div>
               </div>
@@ -54,43 +64,28 @@ function CandidateFeedbackDialog({ candidate }) {
                 <div className="mt-3 grid grid-cols-2 gap-10">
                   <div>
                     <h2 className="flex justify-between">
-                      Technical Skills{" "}
-                      <span>{feedback?.rating?.technicalSkills}/10</span>
+                      Technical Skills <span>{technicalSkills}/10</span>
                     </h2>
-                    <Progress
-                      value={feedback?.rating?.technicalSkills * 10}
-                      className={"mt-1"}
-                    />
+                    <Progress value={technicalSkills * 10} className={"mt-1"} />
                   </div>
                   <div>
                     <h2 className="flex justify-between">
-                      Communication{" "}
-                      <span>{feedback?.rating?.communication}/10</span>
+                      Communication <span>{communication}/10</span>
                     </h2>
-                    <Progress
-                      value={feedback?.rating?.communication * 10}
-                      className={"mt-1"}
-                    />
+                    <Progress value={communication * 10} className={"mt-1"} />
                   </div>
                   <div>
                     <h2 className="flex justify-between">
-                      Problem Solving{" "}
-                      <span>{feedback?.rating?.problemSolving}/10</span>
+                      Problem Solving <span>{problemSolving}/10</span>
                     </h2>
-                    <Progress
-                      value={feedback?.rating?.problemSolving * 10}
-                      className={"mt-1"}
-                    />
+                    <Progress value={problemSolving * 10} className={"mt-1"} />
                   </div>
                   <div>
                     <h2 className="flex justify-between">
                       Experience
-                      <span>{feedback?.rating?.experience}/10</span>
+                      <span>{experience}/10</span>
                     </h2>
-                    <Progress
-                      value={feedback?.rating?.experience * 10}
-                      className={"mt-1"}
-                    />
+                    <Progress value={experience * 10} className={"mt-1"} />
                   </div>
                 </div>
               </div>

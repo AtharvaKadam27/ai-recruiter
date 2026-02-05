@@ -1,6 +1,5 @@
 "use client";
 import { useUser } from "@/app/provider";
-import Image from "next/image";
 import React from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -35,13 +34,9 @@ function WelcomeContainer() {
       {user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Image
-              src={user?.picture}
-              alt="Avatar"
-              width={40}
-              height={40}
-              className="rounded-full select-none cursor-pointer"
-            />
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-lg font-bold cursor-pointer select-none hover:from-blue-600 hover:to-blue-700 transition">
+              {user?.name?.charAt(0)?.toUpperCase() || "U"}
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32 ">
             <DropdownMenuItem
